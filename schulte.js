@@ -45,8 +45,8 @@ function makeTable(numbers) {
 // main
 
 Vue.component('schulte-table__tile', {
-    props: ['number'],
-    template: '<td style="width: 50px; height: 50px;"> {{number}} </td>'
+    props: ['number', 'callback'],
+    template: '<div @click="callback" style="width: 50px; height: 50px;"> {{number}} </div>'
 })
 
 Vue.component('schulte-table', {
@@ -55,7 +55,11 @@ Vue.component('schulte-table', {
 
     },
     data: function () {
-        return {}
+        return {
+            callback: function (number) {
+                alert('clicked on ' + number + '!')
+            }
+        }
     },
     computed: {
         randomTableNumbers: function () {
@@ -70,7 +74,9 @@ Vue.component('schulte-table', {
     template: '<table>' +
         '<tbody>' +
         '<tr v-for="numberList in randomTableNumbers">' +
-        '   <schulte-table__tile v-for="number in numberList" v-bind:number="number" />' +
+        '   <td v-for="number in numberList" >' +
+        '       <schulte-table__tile :number="number" :callback="function () {callback(number) }" />' + 
+        '   </td>' + 
         '</tr>' +
         '</tbody>' +
         '</table>'
