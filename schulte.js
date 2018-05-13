@@ -44,42 +44,100 @@ function makeTable(numbers) {
 // *******************
 // main
 
-Vue.component('schulte-table__tile', {
-    props: ['number', 'callback'],
-    template: '<div @click="callback" style="width: 50px; height: 50px;"> {{number}} </div>'
-})
-
-Vue.component('schulte-table', {
-    props: ['size'],
-    created: function () {
-
+Vue.component('schulte-schulte__table__correctness-indicator', {
+    props: ['counter', 'correct', 'hintTimeoutInMillis'],
+    watch: {
+        counter: 'showHint'
     },
     data: function () {
         return {
-            callback: function (number) {
-                alert('clicked on ' + number + '!')
+            correctnessHintTimeIsUp: true
+        }
+    },
+    mounted: function () {this.showHint() },
+    methods: {
+        showHint: function () {
+            this.correctnessHintTimeIsUp = false
+            const vm = this
+            setTimeout(function () {
+                vm.correctnessHintTimeIsUp = true
+            }, this.hintTimeoutInMillis)
+        }
+    },
+    template: 
+        `<div>
+            {{correctnessHintTimeIsUp ? '...' : (correct ? '✓' : 'x') }}
+        </div>`
+})
+
+Vue.component('schulte-schulte__table__tile', {
+    props: {number: Number, numberPressCallback: Function},
+    template: '<div @click="numberPressCallback" style="width: 50px; height: 50px;"> {{number}} </div>'
+})
+
+Vue.component('schulte-schulte__table', {
+    props: ['randomTableNumbers'],
+    methods: {
+        numberPressed: function (number) {
+            if (!this.playerStarted) this.playerStarted = true
+            this.playerTriesCounter ++
+            if (number === this.correctNumber) {
+                console.log('correct: ' + this.correctNumber);
+                this.correctNumber ++;
+                this.playerLastGuessCorrect = true;
+            } else {
+                this.playerLastGuessCorrect = false;
+                console.log('not correct, is ' + number + ' should be ' + this.correctNumber)
             }
         }
     },
+    data: function () {
+        return {
+            correctNumber: 1,
+            playerStarted: false,
+            playerTriesCounter: 0,
+            playerLastGuessCorrect: null
+        };
+    },
     computed: {
-        randomTableNumbers: function () {
-            const size = this.size,
-                numbersTable = makeTable(
-                    shuffle(straightArray(size))
-                );
-            console.log(numbersTable);
-            return numbersTable;
+        size: function () {
+            if (this.randomTableNumbers.length !== this.randomTableNumbers[0].length) {
+                throw '\t!@#: Table is not a square!'
+            }
+            return this.randomTableNumbers.length
         }
     },
-    template: '<table>' +
-        '<tbody>' +
-        '<tr v-for="numberList in randomTableNumbers">' +
-        '   <td v-for="number in numberList" >' +
-        '       <schulte-table__tile :number="number" :callback="function () {callback(number) }" />' + 
-        '   </td>' + 
-        '</tr>' +
-        '</tbody>' +
-        '</table>'
+    template: 
+        `<div>
+            <table>
+                <tbody>
+                    <tr v-for="numberList in randomTableNumbers">
+                        <td v-for="number in numberList" >
+                            <schulte-schulte__table__tile 
+                                :number="number" 
+                                :numberPressCallback="function () { numberPressed(number) }" 
+                            />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <schulte-schulte__table__correctness-indicator 
+                v-if="playerStarted"
+                :counter="playerTriesCounter" 
+                :correct="playerLastGuessCorrect"
+                :hintTimeoutInMillis = "1000"
+            />
+        </div>`
+})
+
+Vue.component('lomachenko-schulte', {
+    props: ['size'],
+    created: function () {
+        this.randomTableNumbers = makeTable(
+            shuffle(straightArray(this.size))
+        );
+    },
+    template: '<schulte-schulte__table :randomTableNumbers="randomTableNumbers" />'
 })
 
 new Vue({
