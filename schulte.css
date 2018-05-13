@@ -1,0 +1,56 @@
+body {
+    font-family: 'Source Sans Pro', sans-serif;
+    color: dimgray;
+}
+
+.loma-schulte__table__tile {
+    display: table-cell;
+    width: 80px; 
+    height: 80px;
+    margin: 1px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 2em;
+    background-color: white;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+    border-radius: 1px;
+
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+     user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+}
+
+.loma-schulte__table__tile:hover {
+    cursor: default;
+}
+
+.loma-schulte__table__tile:hover {
+    box-shadow: 0 4px 7px 0 rgba(0,0,0,0.2);
+}
+
+.loma-schulte__table {
+    margin: 30px auto 30px auto;
+}
+
+.loma-schulte__table__correctness-indicator {
+    font-size: 3em;
+    margin: 70px auto;
+    opacity: 0.8;
+    width: 100%;
+}
+
+.loma-schulte__table__correctness-indicator--no-hint {
+    color: dimgray !important;
+    font-size: 2em !important;
+}
+
+.loma-schulte__table__correctness-indicator--correct {
+    color: springgreen;
+}
+
+.loma-schulte__table__correctness-indicator--incorrect {
+    color: tomato;
+}

@@ -44,7 +44,7 @@ function makeTable(numbers) {
 // *******************
 // main
 
-Vue.component('schulte-schulte__table__correctness-indicator', {
+Vue.component('loma-schulte__table__correctness-indicator', {
     props: ['counter', 'correct', 'hintTimeoutInMillis'],
     watch: {
         counter: 'showHint'
@@ -65,30 +65,42 @@ Vue.component('schulte-schulte__table__correctness-indicator', {
         }
     },
     template: 
-        `<div>
-            {{correctnessHintTimeIsUp ? '...' : (correct ? '✓' : 'x') }}
+        `<div 
+            class="loma-schulte__table__correctness-indicator"
+            :class="{
+                'loma-schulte__table__correctness-indicator--no-hint': correctnessHintTimeIsUp,
+                'loma-schulte__table__correctness-indicator--correct': correct,
+                'loma-schulte__table__correctness-indicator--incorrect': !correct 
+            }">
+            {{correctnessHintTimeIsUp ? '...' : (correct ? '✓' : '✕') }}
         </div>`
 })
 
-Vue.component('schulte-schulte__table__tile', {
+Vue.component('loma-schulte__table__tile', {
     props: {number: Number, numberPressCallback: Function},
-    template: '<div @click="numberPressCallback" style="width: 50px; height: 50px;"> {{number}} </div>'
+    template: 
+        `<div 
+            class="loma-schulte__table__tile"
+            @click="numberPressCallback" > 
+            {{number}}
+        </div>`
 })
 
-Vue.component('schulte-schulte__table', {
+Vue.component('loma-schulte__table', {
     props: ['randomTableNumbers'],
     methods: {
         numberPressed: function (number) {
             if (!this.playerStarted) this.playerStarted = true
             this.playerTriesCounter ++
             if (number === this.correctNumber) {
-                console.log('correct: ' + this.correctNumber);
+                // console.log('correct: ' + this.correctNumber);
                 this.correctNumber ++;
                 this.playerLastGuessCorrect = true;
             } else {
                 this.playerLastGuessCorrect = false;
-                console.log('not correct, is ' + number + ' should be ' + this.correctNumber)
+                // console.log('not correct, is ' + number + ' should be ' + this.correctNumber)
             }
+            if (this.size ** 2 === this.correctNumber - 1) alert('win!')
         }
     },
     data: function () {
@@ -108,12 +120,12 @@ Vue.component('schulte-schulte__table', {
         }
     },
     template: 
-        `<div>
-            <table>
+        `<div style="text-align: center;">
+            <table class="loma-schulte__table">
                 <tbody>
                     <tr v-for="numberList in randomTableNumbers">
                         <td v-for="number in numberList" >
-                            <schulte-schulte__table__tile 
+                            <loma-schulte__table__tile 
                                 :number="number" 
                                 :numberPressCallback="function () { numberPressed(number) }" 
                             />
@@ -121,23 +133,26 @@ Vue.component('schulte-schulte__table', {
                     </tr>
                 </tbody>
             </table>
-            <schulte-schulte__table__correctness-indicator 
+            <loma-schulte__table__correctness-indicator 
                 v-if="playerStarted"
                 :counter="playerTriesCounter" 
                 :correct="playerLastGuessCorrect"
-                :hintTimeoutInMillis = "1000"
+                :hintTimeoutInMillis = "400"
             />
         </div>`
 })
 
-Vue.component('lomachenko-schulte', {
+Vue.component('loma-schulte', {
     props: ['size'],
     created: function () {
         this.randomTableNumbers = makeTable(
             shuffle(straightArray(this.size))
         );
     },
-    template: '<schulte-schulte__table :randomTableNumbers="randomTableNumbers" />'
+    template: 
+        `<loma-schulte__table 
+            :randomTableNumbers="randomTableNumbers" 
+        />`
 })
 
 new Vue({
