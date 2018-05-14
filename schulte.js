@@ -80,7 +80,7 @@ Vue.component('loma-schulte__table__tile', {
     props: {number: Number, numberPressCallback: Function},
     template: 
         `<div 
-            class="loma-schulte__table__tile"
+            class="loma-schulte__table__tile unselectable-text"
             @click="numberPressCallback" > 
             {{number}}
         </div>`
@@ -120,7 +120,7 @@ Vue.component('loma-schulte__table', {
         }
     },
     template: 
-        `<div style="text-align: center;">
+        `<div>
             <table class="loma-schulte__table">
                 <tbody>
                     <tr v-for="numberList in randomTableNumbers">
@@ -149,10 +149,35 @@ Vue.component('loma-schulte', {
             shuffle(straightArray(this.size))
         );
     },
+	methods: {
+		generate: function () {
+			const randomTableNumbers = makeTable(
+	            		shuffle(straightArray(this.size))
+        		);
+			console.log(JSON.stringify(randomTableNumbers) )
+			this.randomTableNumbers = randomTableNumbers
+			this.playStarted = true
+		}
+	},
+	data: function () {
+		return {
+			playStarted: false
+		}
+	},
     template: 
-        `<loma-schulte__table 
-            :randomTableNumbers="randomTableNumbers" 
-        />`
+        `<div class="loma-schulte">
+    		<div 
+                @click="generate"
+                class="loma-schulte__generate-button unselectable-text" 
+                >
+                <div class="loma-schulte__generate-button__text" >
+                generate
+                </div>
+            </div>
+    		<loma-schulte__table 
+    			:randomTableNumbers="randomTableNumbers" 
+            	/>
+    	</div>`
 })
 
 new Vue({

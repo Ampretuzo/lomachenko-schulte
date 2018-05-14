@@ -3,6 +3,19 @@ body {
     color: dimgray;
 }
 
+.unselectable-text {
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+     user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+}
+
+.loma-schulte {
+    position: relative;
+}
+
 .loma-schulte__table__tile {
     display: table-cell;
     width: 80px; 
@@ -14,20 +27,10 @@ body {
     background-color: white;
     box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
     border-radius: 1px;
-
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-     user-select: none;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
 }
 
 .loma-schulte__table__tile:hover {
     cursor: default;
-}
-
-.loma-schulte__table__tile:hover {
     box-shadow: 0 4px 7px 0 rgba(0,0,0,0.2);
 }
 
@@ -53,4 +56,35 @@ body {
 
 .loma-schulte__table__correctness-indicator--incorrect {
     color: tomato;
+}
+
+.loma-schulte__generate-button {
+    --diameter: 140px;
+    --radius: calc(var(--diameter) / 2);
+    border-radius: var(--radius);
+    height: var(--diameter);
+    width: var(--diameter); 
+    z-index: 2;
+    
+    /* for some reason it is transparent... */
+    background-color: white;
+    
+    display: table;
+    text-align: center;
+    
+    position: absolute;
+    top: calc(50% - var(--radius) );
+    left: calc(50% - var(--radius) );
+    box-shadow: 0 2px 5px;
+}
+
+.loma-schulte__generate-button:hover {
+    box-shadow: 0 4px 10px 0;
+    cursor: pointer;
+}
+
+.loma-schulte__generate-button__text {
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 1.5em;
 }
