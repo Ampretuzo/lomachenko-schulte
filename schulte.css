@@ -41,6 +41,7 @@ body {
 .loma-schulte__table__correctness-indicator {
     font-size: 3em;
     margin: 70px auto;
+    text-align: center;
     opacity: 0.8;
     width: 100%;
 }

@@ -9,6 +9,14 @@ function straightArray(size) {
     return resultArray;
 }
 
+function straightNullArray (size) {
+    const resultArray = [];
+    for (let i = 0; i < size * size; i++) {
+        resultArray.push(null);
+    }
+    return resultArray;
+}
+
 // lifted from: https://bost.ocks.org/mike/shuffle/
 function shuffle(array) {
     var m = array.length,
@@ -76,13 +84,30 @@ Vue.component('loma-schulte__table__correctness-indicator', {
         </div>`
 })
 
+const DELAY_PER_NUMBER_IN_MS = 3
+
 Vue.component('loma-schulte__table__tile', {
     props: {number: Number, numberPressCallback: Function},
+    watch: {
+        number: function (newNumberVal, oldNumberVal) {
+            if (!oldNumberVal && newNumberVal) {
+                const vm = this
+                setTimeout(function () {
+                    vm.numberAsStringToDisplayWhenNeeded = newNumberVal
+                }, DELAY_PER_NUMBER_IN_MS * newNumberVal)
+            }
+        }
+    },
+    data: function () {
+        return {
+            numberAsStringToDisplayWhenNeeded: null
+        }
+    },
     template: 
         `<div 
             class="loma-schulte__table__tile unselectable-text"
             @click="numberPressCallback" > 
-            {{number}}
+            {{numberAsStringToDisplayWhenNeeded}}
         </div>`
 })
 
@@ -149,34 +174,31 @@ Vue.component('loma-schulte__table', {
 
 Vue.component('loma-schulte', {
     props: ['size'],
-    created: function () {
-    },
 	methods: {
 		generate: function () {
-			const randomTableNumbersNew = makeTable(
-	            		shuffle(straightArray(this.size))
-        		)
+			const randomTableNumbersNew = makeTable(shuffle(straightArray(this.size) ) )
+            this.generationPermitted = false
 			this.randomTableNumbers = randomTableNumbersNew
-			this.playStarted = true
-		}
+		},
+        playFinished: function () {
+            alert('play finished')
+        }
 	},
 	data: function () {
+        const emptyTable = makeTable(straightNullArray(this.size) )
 		return {
-            randomTableNumbers: null,
-			playStarted: false
+            randomTableNumbers: emptyTable,
+            generationPermitted: true
 		}
 	},
     template: 
         `<div class="loma-schulte">
-    		<div 
-                @click="generate"
-                class="loma-schulte__generate-button unselectable-text" 
-                >
+    		<div v-if="generationPermitted" @click="generate" class="loma-schulte__generate-button unselectable-text" >
                 <div class="loma-schulte__generate-button__text" >
-                generate
+                    generate
                 </div>
             </div>
-    		<loma-schulte__table :randomTableNumbers="randomTableNumbers" />
+    		<loma-schulte__table :randomTableNumbers="randomTableNumbers" :playFinishedCallback="playFinished" />
     	</div>`
 })
 
