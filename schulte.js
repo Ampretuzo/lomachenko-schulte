@@ -87,7 +87,12 @@ Vue.component('loma-schulte__table__tile', {
 })
 
 Vue.component('loma-schulte__table', {
-    props: ['randomTableNumbers'],
+    props: {
+        randomTableNumbers: {
+            type: Array,
+            required: true
+        }
+    },
     methods: {
         numberPressed: function (number) {
             if (!this.playerStarted) this.playerStarted = true
@@ -145,22 +150,19 @@ Vue.component('loma-schulte__table', {
 Vue.component('loma-schulte', {
     props: ['size'],
     created: function () {
-        this.randomTableNumbers = makeTable(
-            shuffle(straightArray(this.size))
-        );
     },
 	methods: {
 		generate: function () {
-			const randomTableNumbers = makeTable(
+			const randomTableNumbersNew = makeTable(
 	            		shuffle(straightArray(this.size))
-        		);
-			console.log(JSON.stringify(randomTableNumbers) )
-			this.randomTableNumbers = randomTableNumbers
+        		)
+			this.randomTableNumbers = randomTableNumbersNew
 			this.playStarted = true
 		}
 	},
 	data: function () {
 		return {
+            randomTableNumbers: null,
 			playStarted: false
 		}
 	},
@@ -174,9 +176,7 @@ Vue.component('loma-schulte', {
                 generate
                 </div>
             </div>
-    		<loma-schulte__table 
-    			:randomTableNumbers="randomTableNumbers" 
-            	/>
+    		<loma-schulte__table :randomTableNumbers="randomTableNumbers" />
     	</div>`
 })
 
