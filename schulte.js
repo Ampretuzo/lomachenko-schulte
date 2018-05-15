@@ -49,6 +49,12 @@ function makeTable(numbers) {
     return result;
 }
 
+function tableIsEmpty (tableArray) {
+    if (!tableArray) return true;
+    if (!tableArray[0][0]) return true;
+    return false;
+}
+
 // *******************
 // main
 
@@ -95,6 +101,8 @@ Vue.component('loma-schulte__table__tile', {
                 setTimeout(function () {
                     vm.numberAsStringToDisplayWhenNeeded = newNumberVal
                 }, DELAY_PER_NUMBER_IN_MS * newNumberVal)
+            } else {
+                this.numberAsStringToDisplayWhenNeeded = newNumberVal
             }
         }
     },
@@ -113,10 +121,8 @@ Vue.component('loma-schulte__table__tile', {
 
 Vue.component('loma-schulte__table', {
     props: {
-        randomTableNumbers: {
-            type: Array,
-            required: true
-        }
+        randomTableNumbers:  Array,
+        playFinishedCallback: Function
     },
     methods: {
         numberPressed: function (number) {
@@ -130,7 +136,28 @@ Vue.component('loma-schulte__table', {
                 this.playerLastGuessCorrect = false;
                 // console.log('not correct, is ' + number + ' should be ' + this.correctNumber)
             }
-            if (this.size ** 2 === this.correctNumber - 1) alert('win!')
+            const lastNumberToFinish = this.size // ** 2
+            if (lastNumberToFinish === this.correctNumber - 1) {
+                this.finishThePlay()
+            }
+        },
+        startThePlay: function () {
+            this.playStartTime = new Date().getTime()
+        },
+        finishThePlay: function () {
+            const playDurationInMillis = new Date().getTime() - this.playStartTime
+            
+            // set whole view to clean state
+            this.playStartTime = null
+            this.correctNumber = 1
+            this.playerStarted = false
+            this.playerTriesCounter = 0
+            this.playerLastGuessCorrect = null
+            this.playStartTime = null
+            
+            this.playFinishedCallback({
+                durationInMillis: playDurationInMillis
+            })
         }
     },
     data: function () {
@@ -138,8 +165,16 @@ Vue.component('loma-schulte__table', {
             correctNumber: 1,
             playerStarted: false,
             playerTriesCounter: 0,
-            playerLastGuessCorrect: null
+            playerLastGuessCorrect: null,
+            playStartTime: null
         };
+    },
+    watch: {
+        randomTableNumbers: function (newRandomTableNumbers, oldRandomTableNumbers) {
+            if (tableIsEmpty(oldRandomTableNumbers) && !tableIsEmpty(newRandomTableNumbers) ) {
+                this.startThePlay();
+            }
+        }
     },
     computed: {
         size: function () {
@@ -180,8 +215,10 @@ Vue.component('loma-schulte', {
             this.generationPermitted = false
 			this.randomTableNumbers = randomTableNumbersNew
 		},
-        playFinished: function () {
-            alert('play finished')
+        playFinished: function (result) {
+            alert(JSON.stringify(result) )
+            this.randomTableNumbers = makeTable(straightNullArray(this.size) )
+            this.generationPermitted = true
         }
 	},
 	data: function () {
