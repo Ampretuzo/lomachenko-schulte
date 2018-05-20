@@ -55,6 +55,63 @@ function tableIsEmpty (tableArray) {
     return false;
 }
 
+// lifted and adapted from: https://stackoverflow.com/a/7114339/7567275
+function getAllDays(dateStart, dateEnd) {
+    if (dateEnd < dateStart) {
+        return [];
+    }
+    const days = [dateStart]
+    dayInMs = 86400000 //24h
+    for (var ms = dateStart.getTime() + dayInMs; ms <= dateEnd.getTime(); ms = ms + dayInMs) {
+      days.push(new Date(ms))
+    }
+    return days;
+}
+
+// *******************
+// storage
+
+function dateStringRepresentation(date) {
+    if (!date) return null
+    const day = date.getDate()
+    const month = date.getMonth()
+    const year = date.getFullYear()
+    return `${year}-${month}-${day}`
+}
+
+const storage = {
+    pushResult: function (playTimeInMillis) {
+        const currentDate = new Date()
+        const currentDateAsKey = dateStringRepresentation(currentDate)
+        let existingEntryInLocalStorage = localStorage.getItem(currentDateAsKey)
+        if (!existingEntryInLocalStorage) {
+            localStorage.setItem(currentDateAsKey, '')
+            existingEntryInLocalStorage = ''
+        }
+        const updatedEntryInLocalStorage = 
+            existingEntryInLocalStorage === '' ? 
+                playTimeInMillis : existingEntryInLocalStorage + ',' + playTimeInMillis
+        localStorage.setItem(currentDateAsKey, updatedEntryInLocalStorage)
+    },
+    getAveraged(dateStart, dateEnd, numberOfLastTries) {
+        const daysAsKeys = getAllDays(dateStart, dateEnd).map(function (date) {
+            return dateStringRepresentation(date)
+        })
+        function calculateAverage (dayAsKey) {
+            const entryInLocalStorage = localStorage.getItem(dayAsKey)
+            if (!entryInLocalStorage || entryInLocalStorage === '') return null
+            const triesInMs = entryInLocalStorage.split(',').map(Number)
+            const lastTriesInMs = triesInMs.slice( -1 * numberOfLastTries)
+            const average = lastTriesInMs.reduce(function (sum, playDurationInMillis) {
+                return sum + playDurationInMillis
+            }, 0) / lastTriesInMs.length
+            return average
+        }
+        const averagesForEachDay = daysAsKeys.map(calculateAverage, this)
+        return averagesForEachDay
+    }
+}
+
 // *******************
 // main
 
