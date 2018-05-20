@@ -134,6 +134,7 @@ Vue.component('loma-schulte__table', {
                 this.playerLastGuessCorrect = true;
             } else {
                 this.playerLastGuessCorrect = false;
+                this.playerNumberOfMistakes ++
                 // console.log('not correct, is ' + number + ' should be ' + this.correctNumber)
             }
             const lastNumberToFinish = this.size // ** 2
@@ -145,7 +146,8 @@ Vue.component('loma-schulte__table', {
             this.playStartTime = new Date().getTime()
         },
         finishThePlay: function () {
-            const playDurationInMillis = new Date().getTime() - this.playStartTime
+            const playDurationInMillis = new Date().getTime() - this.playStartTime,
+                playerNumberOfMistakes = this.playerNumberOfMistakes
             
             // set whole view to clean state
             this.playStartTime = null
@@ -154,9 +156,11 @@ Vue.component('loma-schulte__table', {
             this.playerTriesCounter = 0
             this.playerLastGuessCorrect = null
             this.playStartTime = null
+            this.playerNumberOfMistakes = 0
             
             this.playFinishedCallback({
-                durationInMillis: playDurationInMillis
+                durationInMillis: playDurationInMillis,
+                numberOfMistakes: playerNumberOfMistakes
             })
         }
     },
@@ -166,12 +170,14 @@ Vue.component('loma-schulte__table', {
             playerStarted: false,
             playerTriesCounter: 0,
             playerLastGuessCorrect: null,
+            playerNumberOfMistakes: 0,
             playStartTime: null
         };
     },
     watch: {
         randomTableNumbers: function (newRandomTableNumbers, oldRandomTableNumbers) {
-            if (tableIsEmpty(oldRandomTableNumbers) && !tableIsEmpty(newRandomTableNumbers) ) {
+            const isNewPlay = tableIsEmpty(oldRandomTableNumbers) && !tableIsEmpty(newRandomTableNumbers)
+            if (isNewPlay) {
                 this.startThePlay();
             }
         }
@@ -186,6 +192,7 @@ Vue.component('loma-schulte__table', {
     },
     template: 
         `<div>
+        
             <table class="loma-schulte__table">
                 <tbody>
                     <tr v-for="numberList in randomTableNumbers">
@@ -198,12 +205,14 @@ Vue.component('loma-schulte__table', {
                     </tr>
                 </tbody>
             </table>
+            
             <loma-schulte__table__correctness-indicator 
                 v-if="playerStarted"
                 :counter="playerTriesCounter" 
                 :correct="playerLastGuessCorrect"
                 :hintTimeoutInMillis = "400"
             />
+            
         </div>`
 })
 
@@ -216,8 +225,11 @@ Vue.component('loma-schulte', {
 			this.randomTableNumbers = randomTableNumbersNew
 		},
         playFinished: function (result) {
-            alert(JSON.stringify(result) )
-            this.randomTableNumbers = makeTable(straightNullArray(this.size) )
+            const playDurationInSecs = result.durationInMillis / 1000
+            const numberOfMistakes = result.numberOfMistakes
+            alert(`${playDurationInSecs} sec\n${numberOfMistakes} mistakes`)
+            const emptyTable = makeTable(straightNullArray(this.size) )
+            this.randomTableNumbers = emptyTable
             this.generationPermitted = true
         }
 	},
@@ -230,12 +242,15 @@ Vue.component('loma-schulte', {
 	},
     template: 
         `<div class="loma-schulte">
+        
     		<div v-if="generationPermitted" @click="generate" class="loma-schulte__generate-button unselectable-text" >
                 <div class="loma-schulte__generate-button__text" >
                     generate
                 </div>
             </div>
+            
     		<loma-schulte__table :randomTableNumbers="randomTableNumbers" :playFinishedCallback="playFinished" />
+            
     	</div>`
 })
 
