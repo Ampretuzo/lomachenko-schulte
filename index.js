@@ -194,7 +194,7 @@ Vue.component('loma-schulte__table', {
                 this.playerNumberOfMistakes ++
                 // console.log('not correct, is ' + number + ' should be ' + this.correctNumber)
             }
-            const lastNumberToFinish = this.size // ** 2
+            const lastNumberToFinish = this.size ** 2
             if (lastNumberToFinish === this.correctNumber - 1) {
                 this.finishThePlay()
             }
